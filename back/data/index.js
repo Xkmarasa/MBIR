@@ -10,51 +10,27 @@ app.use(express.json());
 app.get('/data', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM property');
-    res.setHeader('Content-Type', 'application/json');
+     res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(rows, null, 2));
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 // Ruta POST (crear datos) - CORREGIDA
 app.post('/data', async (req, res) => {
+  const { id, price, description, ubi, baños, tamaño, construido, terraza } = req.body;
   try {
-    const {
-      id,
-      price,
-      description,
-      ubi,
-      baños,
-      tamaño,
-      construido,
-      terraza,
-      imagenes,
-      name,
-    } = req.body;
-
-    const values = [
-      id,
-      price,
-      description,
-      ubi,
-      baños,
-      tamaño,
-      construido,
-      terraza,
-      JSON.stringify(imagenes || []),
-      name || null,
-    ];
-
-    const insertSql =
-      'INSERT INTO property (id, price, description, ubi, "baños", "tamaño", construido, terraza, imagenes, name) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *';
-
-    const { rows } = await pool.query(insertSql, values);
+    const { rows } = await pool.query(
+      'INSERT INTO property (id, price, description, ubi, baños, tamaño, construido, terraza) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [id, price, description, ubi, baños, tamaño, construido, terraza]
+    );
     res.status(201).json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // Ruta raíz para evitar "Cannot GET /"
 app.get('/', (req, res) => {
@@ -80,6 +56,4 @@ app.delete('/data/:id', async (req, res) => {
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
-
 });
-
