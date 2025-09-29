@@ -10,8 +10,7 @@ app.use(express.json());
 app.get('/data', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM property');
-     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(rows, null, 2));
+    res.setHeader('Content-Type', 'application/json');
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -83,3 +82,4 @@ app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 
 });
+
